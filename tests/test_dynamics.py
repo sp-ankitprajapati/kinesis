@@ -48,3 +48,9 @@ def test_angle_wrapping_and_periodicity():
     assert wrap_angle(math.pi) == pytest.approx(-math.pi)
     assert wrap_angle(-math.pi - 0.1) == pytest.approx(math.pi - 0.1)
     assert wrap_angle(0.2 + 12 * math.pi) == pytest.approx(0.2)
+
+
+@pytest.mark.parametrize('config', [dict(dt=0), dict(tau_v=-1), dict(dt=float('nan'))])
+def test_invalid_motion_configuration_is_rejected(config):
+    with pytest.raises(ValueError):
+        MotionConfig(**config)

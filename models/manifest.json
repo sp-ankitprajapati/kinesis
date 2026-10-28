@@ -1,0 +1,25 @@
+{
+  "selected_seed": 27,
+  "training_source_revision": "0df854a866d30330ba32dad38c29c9d8410ea1cc",
+  "observation_size": 25,
+  "models": [
+    {
+      "seed": 7,
+      "path": "models/sac_seed_7.zip",
+      "sha256": "49b2a7640a54b3d34890504ee8ef55b6f963b39a021544faf53235a3a886bec6",
+      "validation_selected_demo": false
+    },
+    {
+      "seed": 17,
+      "path": "models/sac_seed_17.zip",
+      "sha256": "b543fda425dca90cfaf30754964f75f7f5793df52ec116059aa6280dbe5e1e4b",
+      "validation_selected_demo": false
+    },
+    {
+      "seed": 27,
+      "path": "models/sac_selected.zip",
+      "sha256": "551ce40370959d9912ad586c535a5906692d953675980b4e358bdf0940c7c3ce",
+      "validation_selected_demo": true
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "nominal_baseline": {
+    "controller": "Pure Pursuit",
+    "stress": "nominal",
+    "episodes": 24,
+    "success_rate": 1.0,
+    "completion": 1.0,
+    "rmse_m": 0.0427223729014947,
+    "max_error_m": 0.1839733296998423,
+    "elapsed_s": 12.65,
+    "v_command_slew_rms_mps2": 0.8768401649976335,
+    "w_command_slew_rms_radps2": 0.5856702223841558,
+    "latency_median_ms": 0.03160991666666666,
+    "latency_p95_ms": 0.05761317499999999
+  },
+  "nominal_sac": [
+    {
+      "controller": "SAC seed 7",
+      "stress": "nominal",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.18757284319299192,
+      "max_error_m": 0.434737832199757,
+      "elapsed_s": 13.333333333333334,
+      "v_command_slew_rms_mps2": 1.122835506142354,
+      "w_command_slew_rms_radps2": 3.99931906455771,
+      "latency_median_ms": 0.3745379791666667,
+      "latency_p95_ms": 0.5319830354166667
+    },
+    {
+      "controller": "SAC seed 17",
+      "stress": "nominal",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.09007149139672577,
+      "max_error_m": 0.21327059820604488,
+      "elapsed_s": 11.329166666666666,
+      "v_command_slew_rms_mps2": 1.2446863824521028,
+      "w_command_slew_rms_radps2": 8.281167441617564,
+      "latency_median_ms": 0.34102075000000004,
+      "latency_p95_ms": 0.4819324541666667
+    },
+    {
+      "controller": "SAC seed 27",
+      "stress": "nominal",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.06204115634690524,
+      "max_error_m": 0.18708289043469026,
+      "elapsed_s": 12.050000000000002,
+      "v_command_slew_rms_mps2": 1.3163780214472354,
+      "w_command_slew_rms_radps2": 5.445151858723309,
+      "latency_median_ms": 0.45370620833333336,
+      "latency_p95_ms": 0.7716322374999999
+    }
+  ],
+  "paired_success_times": [
+    {
+      "controller": "SAC seed 7",
+      "paired_successes": 24,
+      "pp_elapsed_s": 12.65,
+      "sac_elapsed_s": 13.333333333333334
+    },
+    {
+      "controller": "SAC seed 17",
+      "paired_successes": 24,
+      "pp_elapsed_s": 12.65,
+      "sac_elapsed_s": 11.329166666666666
+    },
+    {
+      "controller": "SAC seed 27",
+      "paired_successes": 24,
+      "pp_elapsed_s": 12.65,
+      "sac_elapsed_s": 12.050000000000002
+    }
+  ],
+  "families": [
+    {
+      "family": "straight",
+      "pp_success": 1.0,
+      "sac_success": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pp_rmse_m": 0.045570874507027244,
+      "sac_rmse_m": [
+        0.1885186587415046,
+        0.07191350931342651,
+        0.06876901943177285
+      ]
+    },
+    {
+      "family": "sine",
+      "pp_success": 1.0,
+      "sac_success": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pp_rmse_m": 0.05327344737173473,
+      "sac_rmse_m": [
+        0.18867343444024642,
+        0.09710136211898167,
+        0.06572474597133963
+      ]
+    },
+    {
+      "family": "arc",
+      "pp_success": 1.0,
+      "sac_success": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pp_rmse_m": 0.03624285288849775,
+      "sac_rmse_m": [
+        0.18956940439485126,
+        0.08415594415459877,
+        0.06110040108307005
+      ]
+    },
+    {
+      "family": "double_sine",
+      "pp_success": 1.0,
+      "sac_success": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pp_rmse_m": 0.03580231683871909,
+      "sac_rmse_m": [
+        0.18352987519536534,
+        0.10711514999989609,
+        0.05257045890143843
+      ]
+    }
+  ],
+  "final_training_minutes": 11.134785099383347,
+  "representative_seed": 27
+}

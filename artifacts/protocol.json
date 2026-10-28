@@ -1,0 +1,54 @@
+{
+  "code_revision": "0df854a866d30330ba32dad38c29c9d8410ea1cc",
+  "python": "3.12.11",
+  "torch": "2.14.1+cpu",
+  "stable_baselines3": "2.9.2",
+  "gymnasium": "1.4.0",
+  "device": "cpu",
+  "torch_threads": 1,
+  "baseline_candidate_count": 4,
+  "sac_candidate_count": 4,
+  "pilot_seed": 101,
+  "pilot_steps_per_candidate": 12000,
+  "final_steps_per_seed": 80000,
+  "final_seeds": [
+    7,
+    17,
+    27
+  ],
+  "selection_rule": "100 * success_rate + 10 * ordered_gate_completion - route_distance_rmse - 0.005 * elapsed_seconds",
+  "validation_episodes_per_candidate": 12,
+  "test_episodes_per_controller_per_stress": 24,
+  "tuning_note": "Four candidate configurations per method; equal validation scenarios. Computational costs are not equal.",
+  "checkpoint_selection": "Use each run's final checkpoint. No test-based checkpoint selection.",
+  "stresses": [
+    {
+      "name": "nominal",
+      "position_noise": 0.0,
+      "heading_noise": 0.0,
+      "delay_steps": 0,
+      "response_scale": 1.0
+    },
+    {
+      "name": "noise",
+      "position_noise": 0.03,
+      "heading_noise": 0.05235987755982989,
+      "delay_steps": 0,
+      "response_scale": 1.0
+    },
+    {
+      "name": "delay_200ms",
+      "position_noise": 0.0,
+      "heading_noise": 0.0,
+      "delay_steps": 2,
+      "response_scale": 1.0
+    },
+    {
+      "name": "slow_response",
+      "position_noise": 0.0,
+      "heading_noise": 0.0,
+      "delay_steps": 0,
+      "response_scale": 2.5
+    }
+  ]
+}

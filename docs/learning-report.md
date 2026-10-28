@@ -9,7 +9,9 @@ Project: Deep reinforcement learning for simulated mobile-robot path tracking
   Gymnasium environment, Pure Pursuit controller, correctness checks and evaluation tools.
 - Measured setup: Python 3.12.11; CPU-only PyTorch 2.14.1; Stable-Baselines3 2.9.2;
   Gymnasium 1.4.0. Package versions are recorded in the dependency files.
-- Pending: training results, held-out evaluation and portfolio conclusions.
+- Measured: three independent SAC training runs, held-out evaluation, stress tests and comparison.
+- Delivered: learning material, results, trained policies, report and presentation.
+- Future: disturbance training, broader scenarios, optional ROS2 and physical validation.
 - No physical robot, motorcycle dynamics, embedded deployment, ROS2 integration or
   real-world safety validation is included in this version.
 
@@ -248,3 +250,188 @@ tracking-error and a small elapsed-time penalty. The fixed score is
 100*success_rate + 10*gate_completion - RMSE - 0.005*elapsed_seconds.
 
 Pure Pursuit reference: https://publications.ri.cmu.edu/implementation-of-the-pure-pursuit-path-tracking-algorithm
+
+
+## 12. Walk through one control step
+
+Read these functions in order: reset, _observation, predict, step, advance.
+You do not need to understand the entire SAC library before understanding this loop.
+
+1. TrackingEnv.reset chooses a scenario from its own split, builds its route,
+   places the robot at the specified initial lateral/heading error, and clears
+   time, previous commands and the delay queue.
+2. _observation converts the four forward reference points from world coordinates
+   into the robot frame. A target on the robot's left has positive body-frame y.
+3. PurePursuit.predict turns a forward target into curvature and bounded commands.
+   SACController.predict instead asks the trained neural network for an action.
+4. step validates that the action is a finite vector of length two, then clips it
+   to [-1, 1]. Bad shapes, NaN and infinity are rejected instead of silently accepted.
+5. The requested action enters the queue. The oldest waiting action is applied.
+   With no delay the newly requested action is immediately popped and applied.
+6. action_to_command converts normalized values to physical speed and turn rate.
+7. advance accounts for speed-response lag and updates position and heading.
+8. The environment projects the new position onto a nearby section of route.
+   It checks the next ordered gate, failure distance, time budget and endpoint.
+9. The reward reflects signed progress, tracking and heading error, action changes,
+   elapsed steps, gates, and the final result.
+10. step returns the next observation, reward, termination flag, truncation flag
+    and diagnostic information. A completed episode must be reset before reuse.
+
+During training, SAC stores transitions in its replay buffer. A transition contains
+the observation, action, reward, next observation and ending information. Sampling
+old transitions breaks the strong ordering of adjacent experiences and lets SAC
+reuse data. The replay buffer is not part of the actor used for inference.
+
+## 13. Read the observation vector
+
+Indices are zero-based. Each controller sees the same values.
+
+| Slice/index | Meaning | Scaling |
+| --- | --- | --- |
+| 0:8 | Four (x, y) preview points in robot coordinates | divide by 3 m |
+| 8 | Signed cross-track error | divide by 1.5 m |
+| 9, 10 | sine and cosine of heading error | naturally bounded |
+| 11, 12 | Actual linear and angular speed | divide by 1.2 and 2 |
+| 13:15 | Previous requested action | normalized actions |
+| 15:19 | Two queued actions, oldest first | stop padding for unused slots |
+| 19 | Remaining route distance | divide by 15 m |
+| 20 | Fraction of time allowance remaining | 0 to 1 |
+| 21 | Number of delayed steps | divide by 2 |
+| 22:24 | Next required gate in robot coordinates | divide by 3 m |
+| 24 | Fraction of gates still required | 0 to 1 |
+
+A Python slice 0:8 includes indices 0 through 7. It excludes index 8.
+NumPy arrays hold several numeric values and support calculations on them together.
+The float32 data type uses less memory than float64 and matches the network input.
+
+## 14. How to read the implementation as a beginner
+
+A dataclass groups related fields. State groups the robot's values; MotionConfig
+groups integration settings. Frozen configuration dataclasses prevent accidental
+reassignment after creation.
+
+A function takes inputs and returns an output. advance takes a state, command and
+configuration, then returns a new state. This separation lets us test motion
+without involving training.
+
+A class groups data and related behavior. TrackingEnv remembers a robot state
+between calls. PurePursuit stores two tuning parameters. SACController stores a
+trained model but does not implement SAC training itself.
+
+A module is one Python file. The relative import .dynamics means another module
+inside the kinesis package. Running python -m kinesis.experiments tells Python to
+run that package module with the repository as its working directory.
+
+The if __name__ == "__main__" block starts the command-line program when the module
+is executed. Importing the module elsewhere does not automatically launch training.
+
+## 15. What each important test establishes
+
+- Analytic straight/circular motion checks units and signs independently of RL.
+- The exponential-response check verifies the lag calculation against a formula.
+- Substep convergence checks approximation error when both speeds change.
+- Action-bound and invalid-action tests protect the integration boundary.
+- The Gymnasium/SB3 checker tests environment API compatibility.
+- Split and held-out-family tests check experiment separation.
+- Seed/noise checks establish repeatable resets under the selected random stream.
+- Delay tests verify both queued observations and the timing of applied commands.
+- Stopping and skipped-gate tests check that completion cannot be obtained by
+  staying still or driving directly across a curved route.
+- The crossing test checks that local projection does not jump to a later branch.
+- A baseline straight-route check establishes a complete solvable episode.
+- Failed evaluation attempts stay in the measured dataset.
+
+Passing these checks does not prove every simulator detail is correct. The coverage
+focuses on important analytic facts and boundaries. More realistic models would
+need additional validation against physical measurements.
+
+## 16. Further interview questions
+
+Q: What does the actor do?
+A: It maps an observation to an action distribution. At evaluation we request its
+deterministic action so exploration noise does not affect the comparison.
+
+Q: What does a critic estimate?
+A: Expected future discounted return from a state/action pair under a policy.
+SAC uses two critics to reduce overoptimistic value estimates.
+
+Q: What does gamma mean?
+A: It discounts future rewards. A value near one gives future consequences more
+weight. Kinesis uses the library default of 0.99.
+
+Q: Why have target networks?
+A: Slowly updated target networks give the value-learning target more stability.
+The soft-update coefficient is the library default of 0.005.
+
+Q: Why use an automatically adjusted entropy coefficient?
+A: It lets SAC adjust the exploration/reward tradeoff. We compare two initial
+coefficients during validation; automatic adjustment does not guarantee success.
+
+Q: What are learning_starts, train_freq and gradient_steps?
+A: They control how much experience is collected before learning, how often
+training occurs, and how many updates follow. Here learning starts after 1,000
+steps; one gradient update follows every four environment steps.
+
+Q: Why not train on the test routes?
+A: Test routes estimate performance after choices are fixed. Using them to choose
+parameters would make the reported result optimistic.
+
+Q: Why three seeds rather than a single best run?
+A: Training is stochastic. Independent runs reveal whether a result is stable or
+depends strongly on one random initialization and experience sequence.
+
+Q: What would you improve next?
+A: Use a wider scenario distribution and more seeds, then consider training-time
+disturbance randomization, better motion identification, or ROS2 integration.
+These are extensions; none should be claimed as implemented without evidence.
+
+## 17. A study route through the finished project
+
+First explain x, y, heading, v and omega without reading the code. Then run only
+the dynamics tests and work through the straight-motion formula by hand.
+
+Next read routes.py and draw one local projection on paper. Inspect a saved
+trajectory and identify the reference path, initial offset and completion gates.
+
+Then follow the ten-step control loop above with Pure Pursuit. Change lookahead
+only in a new reproduction directory and observe the tradeoff between correction
+speed, corner cutting and command smoothness.
+
+After that, read the reward formula and predict what a stopped robot earns.
+Explain why reward, success rate and tracking error are different measurements.
+
+Finally study SAC's actor/critic/replay concepts, the recorded candidate results,
+all three final seeds and the stress-test failures. Practice describing the actual
+measurements and their limits before using the CV bullets.
+
+### Fresh-environment verification
+
+The setup script was executed with KINESIS_VENV=work/setup-verify.
+The new environment installed successfully, pip check found no broken requirements,
+its package freeze matched requirements.txt exactly, and all 22 tests passed.
+This checks the recorded package installation independently of the existing .venv.
+
+## 18. Final measured milestone
+
+The final suite has 26 passing checks, including rotation invariance and invalid
+motion-configuration rejection. The independently installed environment also
+passes all 26 checks and runs the supplied SAC checkpoint.
+
+All controllers completed all 24 nominal test scenarios. Pure Pursuit achieved
+0.043 m mean episode tracking RMSE; SAC averaged 0.113 +/- 0.066 m across three
+training seeds. Pure Pursuit also had lower angular-command slew and measured
+inference time. Under 200 ms command delay, SAC completed 65/72 attempts while
+Pure Pursuit completed 24/24. Six SAC attempts missed a gate and one hit the time
+limit. These failures are retained.
+
+The result supports keeping Pure Pursuit as the stronger default in this simulator
+and budget. SAC learned completion but did not improve the full metric set. The
+queue is observed, but nominal training never shows nonzero delay; the delay test
+therefore changes both dynamics and part of the observation distribution.
+
+See [the full results](results.md) for every condition, seed and route family, and
+[portfolio notes](portfolio-notes.md) for grounded CV and interview material.
+
+Your numerical-solver experience maps directly to state updates, step-size choices,
+analytic checks and convergence. RL adds a learned controller around that motion
+loop. Start with dynamics.py and its tests before studying the SAC integration.

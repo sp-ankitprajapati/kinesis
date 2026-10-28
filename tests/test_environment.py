@@ -104,3 +104,16 @@ def test_controllers_receive_equal_time_and_action_limits():
     assert a.max_steps == b.max_steps
     np.testing.assert_array_equal(a.action_space.low, b.action_space.low)
     np.testing.assert_array_equal(a.action_space.high, b.action_space.high)
+
+
+def test_tracking_observations_are_invariant_to_world_rotation():
+    a, b = TrackingEnv(), TrackingEnv()
+    params = dict(split='train', index=999, family='sine', length_parameter=12,
+                  amplitude=0.8, frequency=0.9, offset=0.2, heading_error=-0.15)
+    oa, _ = a.reset(seed=4, options={'scenario': Scenario(rotation=0, **params)})
+    ob, _ = b.reset(seed=4, options={'scenario': Scenario(rotation=1.2, **params)})
+    np.testing.assert_allclose(oa, ob, atol=1e-6)
+    for _ in range(10):
+        oa, _, _, _, _ = a.step([0.2, 0.1])
+        ob, _, _, _, _ = b.step([0.2, 0.1])
+    np.testing.assert_allclose(oa, ob, atol=1e-6)
