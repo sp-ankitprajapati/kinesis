@@ -85,15 +85,6 @@ deployment or real-world safety validation. Three seeds and a small fixed test s
 provide limited evidence. Separate stress tests do not establish robustness to
 combined disturbances.
 
-## Learn and present
-
-- [Learning report](docs/learning-report.md): concepts, equations, code walkthrough,
-  observation map, experiment records and interview revision.
-- [Measured results](docs/results.md): complete evaluation and interpretation.
-- [Portfolio notes](docs/portfolio-notes.md): grounded CV bullets and interview answers.
-- [Technical report](docs/kinesis-technical-report.pdf).
-- [Interview presentation with speaker notes](docs/kinesis-interview-presentation.pptx).
-
 Training uses source checkpoint 0df854a866d30330ba32dad38c29c9d8410ea1cc.
 Later commits add reporting, demos, documentation and additional checks.
 Large intermediate traces and scratch files remain in the Codespace.
