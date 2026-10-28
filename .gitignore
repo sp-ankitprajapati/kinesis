@@ -14,3 +14,4 @@ artifacts/baseline_validation_traces/
 artifacts/training/*/model.zip
 
 artifacts/reproduction/
+docs/
