@@ -14,3 +14,7 @@ artifacts/baseline_validation_traces/
 artifacts/training/*/model.zip
 
 artifacts/reproduction/
+
+# Personal study materials
+docs/
+/study-notes/

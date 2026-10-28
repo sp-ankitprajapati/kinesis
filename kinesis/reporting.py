@@ -124,14 +124,14 @@ def main():
               "- training/seed_*/run.json and monitor.csv: each final training record.",
               "- test_episodes.csv and test_results.json: all test attempts, including failures.",
               "- figures/: fixed examples and training-return plots.",
-              "- docs/learning-report.md: concepts, code walkthrough and interview revision.", "",
+              "",
               "SAC: https://stable-baselines3.readthedocs.io/en/master/modules/sac.html",
               "Pure Pursuit: https://publications.ri.cmu.edu/implementation-of-the-pure-pursuit-path-tracking-algorithm"]
-    Path("docs/results.md").write_text("\n".join(lines) + "\n")
+    Path("RESULTS.md").write_text("\n".join(lines) + "\n")
     write_json(ROOT / "report_summary.json", {"nominal_baseline": pp, "nominal_sac": sac,
                "paired_success_times": paired_records, "families": family_records,
                "final_training_minutes": minutes, "representative_seed": frozen["representative_seed_for_plots"]})
-    print("Wrote docs/results.md and artifacts/report_summary.json")
+    print("Wrote RESULTS.md and artifacts/report_summary.json")
 
 
 if __name__ == "__main__":

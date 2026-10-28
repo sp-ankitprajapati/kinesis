@@ -109,7 +109,6 @@ Final training used 11.13 minutes summed over three learning calls. This exclude
 - training/seed_*/run.json and monitor.csv: each final training record.
 - test_episodes.csv and test_results.json: all test attempts, including failures.
 - figures/: fixed examples and training-return plots.
-- docs/learning-report.md: concepts, code walkthrough and interview revision.
 
 SAC: https://stable-baselines3.readthedocs.io/en/master/modules/sac.html
 Pure Pursuit: https://publications.ri.cmu.edu/implementation-of-the-pure-pursuit-path-tracking-algorithm

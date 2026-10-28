@@ -2,7 +2,7 @@
 
 **Simulated mobile-robot path tracking with Pure Pursuit and Soft Actor-Critic.**
 
-A portfolio and learning project by Ankit Prajapati. It implements a validated 2D
+A Python simulation study by Ankit Prajapati. It implements a validated 2D
 simulator, integrates a conventional controller and Stable-Baselines3 SAC, and
 evaluates both on held-out routes under shared constraints.
 
@@ -24,12 +24,12 @@ SAC values are mean +/- sample standard deviation across three seeds, not confid
 intervals. Under a 200 ms command delay, Pure Pursuit completed 24/24 attempts;
 SAC completed 65/72. All 384 test attempts, including seven failures, are retained.
 
-Read [the complete results](docs/results.md) for time, family-specific outcomes,
+Read [the complete results](RESULTS.md) for time, family-specific outcomes,
 all stress conditions, individual seeds and limitations.
 
 ![Fixed unseen route example](artifacts/figures/test-003-double_sine.png)
 
-## Run the finished project
+## Run
 
 The GitHub development container installs Python 3.12 and recorded CPU dependencies.
 For an existing Linux x86_64 checkout:
@@ -87,4 +87,3 @@ combined disturbances.
 
 Training uses source checkpoint 0df854a866d30330ba32dad38c29c9d8410ea1cc.
 Later commits add reporting, demos, documentation and additional checks.
-Large intermediate traces and scratch files remain in the Codespace.
