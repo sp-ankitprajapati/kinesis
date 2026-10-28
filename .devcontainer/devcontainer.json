@@ -6,7 +6,7 @@
       "version": "latest"
     }
   },
-  "postCreateCommand": "python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
   "customizations": {
     "vscode": {
       "extensions": [

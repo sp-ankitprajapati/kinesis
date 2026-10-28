@@ -4,3 +4,13 @@
 # Python cache files
 __pycache__/
 *.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Scratch files and large intermediate outputs
+work/
+artifacts/traces/
+artifacts/baseline_validation_traces/
+artifacts/training/*/model.zip
+
+artifacts/reproduction/
