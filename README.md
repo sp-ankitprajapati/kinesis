@@ -24,6 +24,11 @@ SAC values are mean +/- sample standard deviation across three seeds, not confid
 intervals. Under a 200 ms command delay, Pure Pursuit completed 24/24 attempts;
 SAC completed 65/72. All 384 test attempts, including seven failures, are retained.
 
+**Follow-up (November 2026):** retraining SAC with a random 0-200 ms command delay raised
+its success under a 200 ms delay to 70/72; also penalising abrupt command changes reached
+72/72, with 0.082 m tracking error under delay. Pure Pursuit stays more precise and smoother
+in nominal conditions. See [the follow-up](RESULTS.md#follow-up-november-2026-delay-randomised-training).
+
 Read [the complete results](RESULTS.md) for time, family-specific outcomes,
 all stress conditions, individual seeds and limitations.
 
