@@ -19,14 +19,15 @@ for (variant, stress), rs in sorted(groups.items()):
     slew = sum(r["w_command_slew_rms_radps2"] for r in rs) / len(rs)
     print(f"{variant:26s} {stress:12s} success {wins}/{total}  RMSE {rmse:.3f} m  steering slew {slew:.2f} rad/s^2")
     if stress == "delay_200ms":
-        success[variant] = 100 * wins / total
+        success[variant] = (wins, total)
 
-labels = ["Pure Pursuit", "Original SAC", "A: random delay", "B: random delay, smoother"]
-values = [100.0, 100 * 65 / 72, success.get("A_random_delay", 0.0), success.get("B_random_delay_smoother", 0.0)]
-plt.figure(figsize=(7, 3.5))
+labels = ["Pure Pursuit", "Original SAC", "A: random\ndelay", "B: random delay,\nsmoother"]
+counts = [(24, 24), (65, 72), success.get("A_random_delay", (0, 1)), success.get("B_random_delay_smoother", (0, 1))]
+values = [100 * wins / total for wins, total in counts]
+plt.figure(figsize=(7, 3.8))
 plt.bar(labels, values, color=["0.75", "0.55", "tab:blue", "tab:blue"])
-for i, v in enumerate(values):
-    plt.text(i, v + 1, f"{v:.0f}%", ha="center")
+for i, (wins, total) in enumerate(counts):
+    plt.text(i, values[i] + 1, f"{wins}/{total}", ha="center")
 plt.ylim(0, 110)
 plt.ylabel("Success at 200 ms delay (%)")
 plt.title("Training with random delay")
