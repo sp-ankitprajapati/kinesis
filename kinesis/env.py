@@ -43,7 +43,7 @@ def stresses():
 class TrackingEnv(gym.Env):
     metadata = {"render_modes": []}
 
-    def __init__(self, split="train", stress=None):
+    def __init__(self, split="train", stress=None, random_delay=False, smooth_weight=0.02):
         self.split = split
         self.cases = scenarios(split)
         self.stress = stress or Stress()
@@ -52,6 +52,9 @@ class TrackingEnv(gym.Env):
         self.action_space = spaces.Box(-1, 1, shape=(2,), dtype=np.float32)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(OBS_SIZE,), dtype=np.float32)
         self._finished = True
+        self.random_delay = random_delay      # follow-up study: a new delay each episode
+        self.smooth_weight = smooth_weight    # weight of the action-change penalty
+        self.delay_steps = self.stress.delay_steps
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -73,7 +76,9 @@ class TrackingEnv(gym.Env):
         # Equal physical time allowance for every controller on this route.
         self.max_steps = int(math.ceil((self.route.length / 0.5 + 5) / self.motion.dt))
         self.previous_action = STOP_ACTION.copy()
-        self.pending = [STOP_ACTION.copy() for _ in range(self.stress.delay_steps)]
+        if self.random_delay:
+            self.delay_steps = int(self.np_random.integers(0, 3))   # 0, 100 or 200 ms
+        self.pending = [STOP_ACTION.copy() for _ in range(self.delay_steps)]
         self._finished = False
         self.history = []
         return self._observation(), self._info(False, "running")
@@ -95,7 +100,7 @@ class TrackingEnv(gym.Env):
                     math.sin(error), math.cos(error), self.state.v / V_MAX, self.state.w / W_MAX,
                     self.previous_action, np.asarray(pending).ravel(),
                     (self.route.length - self.progress) / 15,
-                    1 - self.steps / self.max_steps, self.stress.delay_steps / 2, body_gate / PREVIEW_SCALE,
+                    1 - self.steps / self.max_steps, self.delay_steps / 2, body_gate / PREVIEW_SCALE,
                     1 - self.gate_index / len(self.gates)]
         return obs.astype(np.float32)
 
@@ -140,7 +145,7 @@ class TrackingEnv(gym.Env):
         # and repeating a route interval does not create net progress reward.
         reward = (5 * (self.progress - old_progress) - 0.8 * cte**2
                   - 0.1 * (1 - math.cos(heading_error))
-                  - 0.02 * float(np.sum((action - last_action)**2)) - 0.01)
+                  - self.smooth_weight * float(np.sum((action - last_action)**2)) - 0.01)
         reward += 2 * (self.gate_index - old_gate_index)
         reward += 10 if success else (-10 if failure else 0)
         self.previous_action = action.copy()
