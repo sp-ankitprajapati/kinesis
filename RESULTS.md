@@ -144,3 +144,24 @@ Training with random delay removed most of SAC's failures under a 200 ms delay: 
 Limits: the 200 ms test delay lies inside the training range, so this measures robustness to a disturbance seen in training, not to unseen ones. The follow-up script saves summaries only, so the reasons for variant A's two failed attempts were not recorded.
 
 Evidence: artifacts/delay_study/summary.json holds all 12 evaluations, with one model.zip per variant and seed. delay_study.py trains and evaluates them; delay_report.py prints the comparison and draws delay_success.png.
+
+## Follow-up 2 (November 2026): imitation learning with TensorFlow/Keras
+
+Question: can a network the size of SAC's actor copy Pure Pursuit from demonstrations, and does it need delay in its training data?
+
+Decided before testing: a Keras network (25 inputs, two hidden layers of 64, tanh output; 5,954 parameters) is trained with mean squared error to reproduce the frozen Pure Pursuit's actions. Demonstrations come from the 24 training routes, with one clean and three noisy rollouts per route; noisy rollouts execute the expert action plus Gaussian noise (standard deviation 0.2) but keep the clean expert action as the label. The 12 validation routes give the validation set for early stopping (patience 8, at most 80 epochs). Variant `nominal_data` collects demonstrations without delay; `random_delay_data` draws a delay of 0, 100 or 200 ms for each episode. Each variant uses one training seed (0), with TensorFlow 2.21.0 and Keras 3.15.1.
+
+| Controller | Nominal success | Nominal RMSE (m) | Nominal angular slew RMS (rad/s^2) | 200 ms success | 200 ms RMSE (m) | 200 ms elapsed time (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Pure Pursuit (the expert) | 24/24 | 0.043 | 0.59 | 24/24 | 0.059 | 12.99 |
+| Keras copy, nominal data | 24/24 | 0.043 | 0.59 | 24/24 | 0.082 | 16.23 |
+| Keras copy, random-delay data | 24/24 | 0.044 | 0.61 | 24/24 | 0.059 | 12.95 |
+| SAC, main study (three seeds) | 72/72 | 0.113 +/- 0.066 | 5.91 +/- 2.18 | 65/72 | 0.175 +/- 0.085 | 15.06 +/- 3.38 |
+
+![Training and validation loss](artifacts/keras_imitation/loss_curves.png)
+
+The Keras network copied Pure Pursuit closely: it completed all 24 test routes in both conditions, and its nominal error and steering slew matched the expert's. SAC's actor has the same hidden size yet steered about ten times more abruptly, which suggests that SAC's jerky steering came from how it was trained rather than from network capacity. Without delay in its demonstrations, the copy's error under a 200 ms delay rose to 0.082 m and routes took 16.2 s instead of 13.0 s; with random delays in the data, it matched the expert. This repeats the delay study's lesson: inputs that never varied in training are a risk when they change.
+
+Limits: a copy is bounded by its expert, so this shows learning from demonstrations, not better control. Each variant uses one training seed, and the 200 ms test delay lies inside the random-delay variant's training range. Median inference through TensorFlow was 0.44–0.48 ms per step, against 0.03 ms for Pure Pursuit. The TensorFlow Lite export is 25.5 KB; its timing on an embedded device was not measured.
+
+Evidence: artifacts/keras_imitation/ holds summary.json, loss_curves.png, both .keras models and random_delay_data.tflite. keras_imitation.py reproduces them in the environment described in requirements-tf.txt.

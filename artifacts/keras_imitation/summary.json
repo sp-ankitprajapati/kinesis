@@ -1,0 +1,113 @@
+{
+  "tensorflow": "2.21.0",
+  "keras": "3.15.1",
+  "noisy_rollouts_per_route": 3,
+  "action_noise": 0.2,
+  "variants": {
+    "nominal_data": {
+      "random_delay_in_data": false,
+      "train_samples": 11676,
+      "validation_samples": 1416,
+      "epochs_run": 80,
+      "best_validation_mse": 1.5682639059377834e-05,
+      "parameters": 5954,
+      "training_seconds": 7.7
+    },
+    "random_delay_data": {
+      "random_delay_in_data": true,
+      "train_samples": 11868,
+      "validation_samples": 1429,
+      "epochs_run": 74,
+      "best_validation_mse": 4.790841558133252e-05,
+      "parameters": 5954,
+      "training_seconds": 7.2
+    }
+  },
+  "test": [
+    {
+      "controller": "nominal_data",
+      "stress": "nominal",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.04341910317063952,
+      "max_error_m": 0.18469640200728724,
+      "elapsed_s": 12.654166666666669,
+      "v_command_slew_rms_mps2": 0.8750494833583717,
+      "w_command_slew_rms_radps2": 0.5852766942935369,
+      "latency_median_ms": 0.47574654166666663,
+      "latency_p95_ms": 0.898261170833333
+    },
+    {
+      "controller": "nominal_data",
+      "stress": "delay_200ms",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.08222887500447888,
+      "max_error_m": 0.19617433983849505,
+      "elapsed_s": 16.233333333333334,
+      "v_command_slew_rms_mps2": 0.7521015973822832,
+      "w_command_slew_rms_radps2": 0.6999864910517534,
+      "latency_median_ms": 0.4425882708333333,
+      "latency_p95_ms": 0.7436534291666664
+    },
+    {
+      "controller": "random_delay_data",
+      "stress": "nominal",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.0436648237485393,
+      "max_error_m": 0.18521656666759892,
+      "elapsed_s": 12.65,
+      "v_command_slew_rms_mps2": 0.8792320241267916,
+      "w_command_slew_rms_radps2": 0.6062787208581714,
+      "latency_median_ms": 0.4762281875,
+      "latency_p95_ms": 1.0507344624999988
+    },
+    {
+      "controller": "random_delay_data",
+      "stress": "delay_200ms",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.059317696810100094,
+      "max_error_m": 0.1888768872444191,
+      "elapsed_s": 12.954166666666666,
+      "v_command_slew_rms_mps2": 0.8632537476491958,
+      "w_command_slew_rms_radps2": 0.9151471910649658,
+      "latency_median_ms": 0.46506624999999996,
+      "latency_p95_ms": 0.6644529229166666
+    },
+    {
+      "controller": "pure_pursuit",
+      "stress": "nominal",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.0427223729014947,
+      "max_error_m": 0.1839733296998423,
+      "elapsed_s": 12.65,
+      "v_command_slew_rms_mps2": 0.8768401649976335,
+      "w_command_slew_rms_radps2": 0.5856702223841558,
+      "latency_median_ms": 0.030581458333333335,
+      "latency_p95_ms": 0.055437379166666655
+    },
+    {
+      "controller": "pure_pursuit",
+      "stress": "delay_200ms",
+      "episodes": 24,
+      "success_rate": 1.0,
+      "completion": 1.0,
+      "rmse_m": 0.05940708072924807,
+      "max_error_m": 0.18698547191531212,
+      "elapsed_s": 12.987500000000002,
+      "v_command_slew_rms_mps2": 0.8676545223791537,
+      "w_command_slew_rms_radps2": 0.9235832898998444,
+      "latency_median_ms": 0.032716999999999996,
+      "latency_p95_ms": 0.06667281458333331
+    }
+  ],
+  "tflite_kb": 25.5
+}
