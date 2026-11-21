@@ -112,3 +112,35 @@ Final training used 11.13 minutes summed over three learning calls. This exclude
 
 SAC: https://stable-baselines3.readthedocs.io/en/master/modules/sac.html
 Pure Pursuit: https://publications.ri.cmu.edu/implementation-of-the-pure-pursuit-path-tracking-algorithm
+
+## Follow-up (November 2026): delay-randomised training
+
+Question: does training with random command delay make SAC robust to a 200 ms delay?
+
+Decided before testing: variant A draws a delay of 0, 100 or 200 ms for each training episode; variant B also raises the action-change penalty from 0.02 to 0.2. Both use the original seeds (7, 17, 27), 80,000 steps, SAC settings and 24 test routes. Both variants are reported, and the sections above are unchanged.
+
+| Model | Nominal success | Nominal RMSE (m) | Nominal angular slew RMS (rad/s^2) | 200 ms success | 200 ms RMSE (m) | 200 ms angular slew RMS (rad/s^2) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Pure Pursuit | 24/24 | 0.043 | 0.59 | 24/24 | 0.059 | 0.92 |
+| Original SAC | 72/72 | 0.113 +/- 0.066 | 5.91 +/- 2.18 | 65/72 | 0.175 +/- 0.085 | 8.29 +/- 0.26 |
+| A: random delay | 72/72 | 0.092 +/- 0.005 | 9.43 +/- 4.04 | 70/72 | 0.141 +/- 0.097 | 9.75 +/- 4.22 |
+| B: random delay, stronger smoothing | 72/72 | 0.094 +/- 0.045 | 4.87 +/- 2.89 | 72/72 | 0.082 +/- 0.007 | 3.34 +/- 1.90 |
+
+SAC rows are mean +/- sample standard deviation across three seeds; success counts are summed over seeds.
+
+| Variant | Seed | 200 ms successes / 24 | 200 ms RMSE (m) |
+| --- | ---: | ---: | ---: |
+| A | 7 | 22 | 0.254 |
+| A | 17 | 24 | 0.088 |
+| A | 27 | 24 | 0.083 |
+| B | 7 | 24 | 0.075 |
+| B | 17 | 24 | 0.090 |
+| B | 27 | 24 | 0.082 |
+
+![Success under a 200 ms delay](artifacts/delay_study/delay_success.png)
+
+Training with random delay removed most of SAC's failures under a 200 ms delay: variant A succeeded in 70 of 72 attempts and variant B in all 72, against 65 for the original policies. Variant B also tracked more closely under delay (0.082 m against 0.175 m) and steered more smoothly than the original SAC, while variant A's steering became jerkier. Pure Pursuit remains more precise and much smoother in nominal conditions; with three seeds the difference between A and B is small, so next I would add seeds, test combined disturbances and delays outside the training range, and try a learned residual on top of Pure Pursuit.
+
+Limits: the 200 ms test delay lies inside the training range, so this measures robustness to a disturbance seen in training, not to unseen ones. The follow-up script saves summaries only, so the reasons for variant A's two failed attempts were not recorded.
+
+Evidence: artifacts/delay_study/summary.json holds all 12 evaluations, with one model.zip per variant and seed. delay_study.py trains and evaluates them; delay_report.py prints the comparison and draws delay_success.png.
