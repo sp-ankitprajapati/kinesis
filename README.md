@@ -29,6 +29,10 @@ its success under a 200 ms delay to 70/72; also penalising abrupt command change
 72/72, with 0.082 m tracking error under delay. Pure Pursuit stays more precise and smoother
 in nominal conditions. See [the follow-up](RESULTS.md#follow-up-november-2026-delay-randomised-training).
 
+**Follow-up 2:** a 5,954-parameter TensorFlow/Keras network trained on Pure Pursuit demonstrations
+matched it on all 24 test routes (0.043 m nominal error, the same steering smoothness), and needed
+delay in its training data to stay accurate under delay. See [follow-up 2](RESULTS.md#follow-up-2-november-2026-imitation-learning-with-tensorflowkeras).
+
 Read [the complete results](RESULTS.md) for time, family-specific outcomes,
 all stress conditions, individual seeds and limitations.
 
