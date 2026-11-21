@@ -1,0 +1,7 @@
+# Only for keras_imitation.py. Install into its own environment so the main study's
+# pinned packages stay untouched:
+#   python3 -m venv .venv-tf
+#   .venv-tf/bin/python -m pip install -r requirements-tf.txt
+tensorflow>=2.16,<3
+gymnasium>=1.0
+matplotlib>=3.8

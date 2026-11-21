@@ -1,5 +1,6 @@
 # Local Python environment
 .venv/
+.venv-tf/
 
 # Python cache files
 __pycache__/
